@@ -1,0 +1,14 @@
+{
+  "name": "gaming-ghar",
+  "version": "1.0.0",
+  "description": "Gaming Ghar Tournament Platform",
+  "main": "backend/server.js",
+  "scripts": {
+    "install": "cd backend && npm install",
+    "start": "cd backend && npm start",
+    "dev": "cd backend && npm run dev"
+  },
+  "keywords": ["gaming", "tournament"],
+  "author": "",
+  "license": "ISC"
+}

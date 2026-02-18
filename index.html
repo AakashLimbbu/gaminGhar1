@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gaming Ghar - Login</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      height: 100vh;
+      overflow: hidden;
+      background: linear-gradient(to bottom right, #d9f8e3, #c9d7f3);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      position: relative;
+      gap: 20px;
+    }
+
+    .logo {
+      position: static;
+      top: 30px;
+      
+      text-align: center;
+    }
+
+    .logo img {
+      width: 500px;
+      max-width: 60%;
+      height: auto;
+    }
+
+    .login-box {
+      background: white;
+      padding: 30px;
+      width: 320px;
+      max-width: 90%;
+      border-radius: 10px;
+      box-shadow: 4px 4px 12px rgba(0, 0, 0, 0.25);
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+
+    .login-box input {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border: none;
+      border-radius: 5px;
+      background-color: #ececec;
+      font-size: 1rem;
+    }
+
+    .login-box button {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 5px;
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background 0.3s ease, transform 0.2s ease;
+    }
+
+    .login-btn {
+      background-color: #747bff;
+    }
+
+    .login-btn:hover {
+      background-color: #5a63e0;
+      transform: scale(1.02);
+    }
+
+    .create-btn {
+      background-color: #f39c73;
+      margin-top: 15px;
+    }
+
+    .create-btn:hover {
+      background-color: #e88258;
+      transform: scale(1.02);
+    }
+
+    .login-box a {
+      display: block;
+      margin-top: 8px;
+      font-size: 0.9rem;
+      color: #000;
+      text-decoration: none;
+    }
+
+    .login-box a:hover {
+      text-decoration: underline;
+    }
+
+    .error-message {
+      color: #d32f2f;
+      font-size: 0.9rem;
+      margin-top: 10px;
+      display: none;
+    }
+
+    .loading {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+      }
+
+      .login-box {
+        width: 90%;
+        padding: 25px;
+      }
+
+      .logo img {
+        width: 300px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .logo img {
+        width: 250px;
+      }
+
+      .login-box {
+        width: 100%;
+        padding: 20px;
+      }
+
+      .login-box input,
+      .login-box button {
+        font-size: 0.9rem;
+        padding: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="logo">
+    <img src="logo.png" alt="Gaming Ghar Logo">
+  </div>
+
+  <div class="login-box">
+    <form id="loginForm">
+      <input type="text" id="identifier" placeholder="Phone number or Email" required />
+      <input type="password" id="password" placeholder="Password" required />
+      <button type="submit" class="login-btn" id="loginBtn">Log In</button>
+      <div class="error-message" id="errorMessage"></div>
+      <a href="#">Forgot Password?</a>
+      <button type="button" class="create-btn" onclick="window.location.href='reg.html'">Create Account</button>
+    </form>
+  </div>
+
+  <script>
+    const API_URL = 'http://localhost:5000/api';
+
+    document.getElementById('loginForm').addEventListener('submit', handleLogin);
+
+    async function handleLogin(e) {
+      e.preventDefault();
+      const identifier = document.getElementById('identifier').value.trim();
+      const password = document.getElementById('password').value.trim();
+      const errorMessage = document.getElementById('errorMessage');
+      const loginBtn = document.getElementById('loginBtn');
+
+      if (!identifier || !password) {
+        showError('Please enter both email/phone and password');
+        return;
+      }
+
+      try {
+        loginBtn.disabled = true;
+        loginBtn.classList.add('loading');
+        errorMessage.style.display = 'none';
+
+        const response = await fetch(`${API_URL}/auth/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ identifier, password })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          localStorage.setItem('token', data.token);
+          localStorage.setItem('user', JSON.stringify(data.user));
+          window.location.href = 'dashboard.html';
+        } else {
+          showError(data.error || 'Login failed');
+        }
+      } catch (error) {
+        console.error('Login error:', error);
+        showError('Login failed. Please check your connection.');
+      } finally {
+        loginBtn.disabled = false;
+        loginBtn.classList.remove('loading');
+      }
+    }
+
+    function showError(message) {
+      const errorMessage = document.getElementById('errorMessage');
+      errorMessage.textContent = message;
+      errorMessage.style.display = 'block';
+    }
+
+    document.getElementById('password').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        document.getElementById('loginForm').dispatchEvent(new Event('submit'));
+      }
+    });
+  </script>
+
+  <!-- Footer -->
+
+
+</body>
+</html>

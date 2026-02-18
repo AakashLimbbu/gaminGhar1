@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GamingGhar - Create Tournament</title>
+  <link rel="stylesheet" href="homepage.css">
+</head>
+<body>
+
+  <button class="dark-toggle" id="darkToggle">🌓</button>
+
+  <header class="navbar">
+    <div class="left-nav">
+      <img src="pp.jpg" class="profile-img" onclick="location.href='profile.html'" style="cursor:pointer;">
+      <img src="logo.png" class="logo" onclick="location.href='dashboard.html'" style="cursor:pointer;">
+    </div>
+    <div class="navbar-right">
+      <span class="user-info" id="userInfo"></span>
+      <button class="logout-btn" onclick="handleLogout()">Logout</button>
+      <button class="delete-btn" onclick="deleteAccount()">Delete Account</button>
+    </div>
+  </header>
+
+  <main class="create-tournament-page">
+    <div class="create-tournament-container">
+      <h1>Create New Tournament</h1>
+      <p class="subtitle">Fill in the details below to create a new tournament</p>
+      
+      <form id="tournamentForm" class="create-tournament-form">
+        <div class="form-grid">
+          <div class="form-section">
+            <h3>Tournament Details</h3>
+            
+            <label for="tournamentName">Tournament Name *</label>
+            <input type="text" id="tournamentName" required placeholder="Enter tournament name">
+            
+            <label for="game">Game</label>
+            <select id="game">
+              <option value="pubg">PUBG</option>
+              <option value="mlbb">MLBB</option>
+              <option value="csgo">CS:GO</option>
+              <option value="lol">LOL</option>
+            </select>
+            
+            <label for="dateTime">Date & Time *</label>
+            <input type="datetime-local" id="dateTime" required>
+            
+            <label for="maxParticipants">Max Participants *</label>
+            <input type="number" id="maxParticipants" required min="2" placeholder="Maximum participants">
+            
+            <label for="entryFee">Entry Fee *</label>
+            <input type="number" id="entryFee" step="0.01" min="0" placeholder="Entry fee amount">
+            
+            <label for="description">Description</label>
+            <textarea id="description" placeholder="Tournament description (optional)"></textarea>
+          </div>
+          
+          <div class="form-section">
+            <h3>Prize Distribution</h3>
+            
+            <label for="firstPlace">First Place</label>
+            <input type="number" id="firstPlace" step="0.01" min="0" placeholder="Prize amount">
+            
+            <label for="secondPlace">Second Place</label>
+            <input type="number" id="secondPlace" step="0.01" min="0" placeholder="Prize amount">
+            
+            <label for="thirdPlace">Third Place</label>
+            <input type="number" id="thirdPlace" step="0.01" min="0" placeholder="Prize amount">
+            
+            <label for="manOfMatch">Man of the Match</label>
+            <input type="number" id="manOfMatch" step="0.01" min="0" placeholder="Prize amount">
+          </div>
+        </div>
+        
+        <div class="form-actions">
+          <button type="submit" class="create-tournament-btn" id="submitBtn">CREATE TOURNAMENT</button>
+          <button type="button" class="cancel-btn" onclick="location.href='dashboard.html'">CANCEL</button>
+        </div>
+        
+        <div class="form-messages">
+          <div class="error-message" id="errorMessage"></div>
+          <div class="success-message" id="successMessage"></div>
+        </div>
+      </form>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-content">
+      <div class="footer-left">
+        <div class="footer-links">
+          <a href="#" onclick="showPrivacyPolicy(); return false;">Privacy Policy</a>
+          <a href="#" onclick="showTermsOfService(); return false;">Terms Of Service</a>
+        </div>
+        <div class="footer-contact">
+          Contact Us: gamingghar@example.com
+        </div>
+        <div class="footer-copyright">
+          © Gaming Ghar. All rights reserved.
+        </div>
+      </div>
+      <div class="footer-right">
+        <a href="https://facebook.com" target="_blank" class="social-icon" title="Facebook">
+          <svg viewBox="0 0 24 24">
+            <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+          </svg>
+        </a>
+        <a href="https://twitter.com" target="_blank" class="social-icon" title="Twitter/X">
+          <svg viewBox="0 0 24 24">
+            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+          </svg>
+        </a>
+        <a href="https://instagram.com" target="_blank" class="social-icon" title="Instagram">
+          <svg viewBox="0 0 24 24">
+            <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zM5.838 12a6.162 6.162 0 1 1 12.324 0 6.162 6.162 0 0 1-12.324 0zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm4.965-10.405a1.44 1.44 0 1 1 2.881.001 1.44 1.44 0 0 1-2.881-.001z"/>
+          </svg>
+        </a>
+        <a href="https://tiktok.com" target="_blank" class="social-icon" title="TikTok">
+          <svg viewBox="0 0 24 24">
+            <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/>
+          </svg>
+        </a>
+        <a href="https://youtube.com" target="_blank" class="social-icon" title="YouTube">
+          <svg viewBox="0 0 24 24">
+            <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+          </svg>
+        </a>
+        <a href="#" class="social-icon" title="Gaming Ghar">
+          <svg viewBox="0 0 24 24">
+            <text x="12" y="16" text-anchor="middle" fill="white" font-size="10" font-weight="bold">GG</text>
+          </svg>
+        </a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Privacy Policy Modal -->
+  <div id="privacyModal" class="policy-modal">
+    <div class="policy-content">
+      <div class="policy-header">
+        <h2 class="policy-title">Privacy Policy</h2>
+        <button class="policy-close" onclick="closePrivacyModal()">&times;</button>
+      </div>
+      <div class="policy-section">
+        <h3>Information We Collect</h3>
+        <p>We collect information you provide directly to us, such as when you create an account, register for tournaments, or contact us.</p>
+        <ul>
+          <li>Personal information (name, email, phone number)</li>
+          <li>Account information (username, password)</li>
+          <li>Tournament participation data</li>
+        </ul>
+      </div>
+      <div class="policy-section">
+        <h3>How We Use Your Information</h3>
+        <p>We use information we collect to:</p>
+        <ul>
+          <li>Provide and maintain our services</li>
+          <li>Process tournament registrations</li>
+          <li>Communicate with you about tournaments</li>
+          <li>Improve our services</li>
+        </ul>
+      </div>
+      <div class="policy-section">
+        <h3>Data Security</h3>
+        <p>We implement appropriate security measures to protect your personal information against unauthorized access, alteration, disclosure, or destruction.</p>
+      </div>
+      <div class="policy-section">
+        <h3>Contact Us</h3>
+        <p>If you have any questions about this Privacy Policy, please contact us at gamingghar@example.com</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Terms of Service Modal -->
+  <div id="termsModal" class="policy-modal">
+    <div class="policy-content">
+      <div class="policy-header">
+        <h2 class="policy-title">Terms of Service</h2>
+        <button class="policy-close" onclick="closeTermsModal()">&times;</button>
+      </div>
+      <div class="policy-section">
+        <h3>Acceptance of Terms</h3>
+        <p>By accessing and using Gaming Ghar, you accept and agree to be bound by terms and provision of this agreement.</p>
+      </div>
+      <div class="policy-section">
+        <h3>User Responsibilities</h3>
+        <p>As a user of Gaming Ghar, you agree to:</p>
+        <ul>
+          <li>Provide accurate and complete information</li>
+          <li>Maintain the security of your account</li>
+          <li>Participate fairly in tournaments</li>
+          <li>Not engage in cheating or unfair practices</li>
+          <li>Respect other users and follow community guidelines</li>
+        </ul>
+      </div>
+      <div class="policy-section">
+        <h3>Tournament Rules</h3>
+        <p>All tournament participants must follow the specific rules of each tournament, including but not limited to:</p>
+        <ul>
+          <li>Entry fee requirements</li>
+          <li>Match scheduling</li>
+          <li>Game-specific rules and regulations</li>
+          <li>Sportsmanship and conduct</li>
+        </ul>
+      </div>
+      <div class="policy-section">
+        <h3>Limitation of Liability</h3>
+        <p>Gaming Ghar is not liable for any losses, damages, or disputes arising from tournament participation. Users participate at their own risk.</p>
+      </div>
+      <div class="policy-section">
+        <h3>Changes to Terms</h3>
+        <p>We reserve the right to modify these terms at any time. Changes will be effective immediately upon posting.</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = 'http://localhost:5000/api';
+
+    function checkAuth() {
+      const token = localStorage.getItem('token');
+      const user = localStorage.getItem('user');
+
+      if (!token || !user) {
+        window.location.href = 'index.html';
+        return false;
+      }
+
+      const userData = JSON.parse(user);
+      document.getElementById('userInfo').textContent = `Welcome, ${userData.username}!`;
+      return true;
+    }
+
+    function handleLogout() {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      window.location.href = 'index.html';
+    }
+
+    async function deleteAccount() {
+      const userData = JSON.parse(localStorage.getItem('user') || '{}');
+      const confirmMessage = `Are you sure you want to delete your account "${userData.username || 'your account'}"? This action cannot be undone and will permanently delete all your data including tournaments.`;
+      
+      if (!confirm(confirmMessage)) {
+        return;
+      }
+
+      const finalConfirmMessage = 'This will permanently delete ALL your data. Type "DELETE" to confirm:';
+      const confirmation = prompt(finalConfirmMessage);
+      
+      if (confirmation !== 'DELETE') {
+        alert('Account deletion cancelled. Confirmation text did not match.');
+        return;
+      }
+
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+          throw new Error('No authentication token found. Please log in again.');
+        }
+
+        const deleteBtn = document.querySelector('.delete-btn');
+        const originalText = deleteBtn.textContent;
+        deleteBtn.textContent = 'Deleting...';
+        deleteBtn.disabled = true;
+
+        const response = await fetch(`${API_URL}/auth/account`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (response.ok) {
+          alert('✅ Account deleted successfully. You will be redirected to the login page.');
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          localStorage.removeItem('darkMode');
+          window.location.href = 'index.html';
+        } else {
+          const errorData = await response.json();
+          alert(`❌ Failed to delete account: ${errorData.error || 'Unknown error'}`);
+          deleteBtn.textContent = originalText;
+          deleteBtn.disabled = false;
+        }
+      } catch (error) {
+        console.error('Delete account error:', error);
+        alert('❌ Failed to delete account. Please check your internet connection.');
+        const deleteBtn = document.querySelector('.delete-btn');
+        deleteBtn.textContent = 'Delete Account';
+        deleteBtn.disabled = false;
+      }
+    }
+
+    function hideMessages() {
+      document.getElementById('errorMessage').style.display = 'none';
+      document.getElementById('successMessage').style.display = 'none';
+    }
+
+    function showError(message) {
+      const errorMessage = document.getElementById('errorMessage');
+      const successMessage = document.getElementById('successMessage');
+      errorMessage.textContent = message;
+      errorMessage.style.display = 'block';
+      successMessage.style.display = 'none';
+    }
+
+    function showSuccess(message) {
+      const successMessage = document.getElementById('successMessage');
+      const errorMessage = document.getElementById('errorMessage');
+      successMessage.textContent = message;
+      successMessage.style.display = 'block';
+      errorMessage.style.display = 'none';
+    }
+
+    // Create Tournament Form Handler
+    document.getElementById('tournamentForm').addEventListener('submit', handleCreateTournament);
+
+    async function handleCreateTournament(e) {
+      e.preventDefault();
+
+      const token = localStorage.getItem('token');
+      if (!token) {
+        showError('Please login first');
+        setTimeout(() => {
+          window.location.href = 'index.html';
+        }, 1500);
+        return;
+      }
+
+      const formData = {
+        name: document.getElementById('tournamentName').value.trim(),
+        game: document.getElementById('game').value.trim(),
+        dateTime: document.getElementById('dateTime').value,
+        maxParticipants: parseInt(document.getElementById('maxParticipants').value),
+        entryFee: parseFloat(document.getElementById('entryFee').value) || 0,
+        description: document.getElementById('description').value.trim(),
+        firstPlace: parseFloat(document.getElementById('firstPlace').value) || 0,
+        secondPlace: parseFloat(document.getElementById('secondPlace').value) || 0,
+        thirdPlace: parseFloat(document.getElementById('thirdPlace').value) || 0,
+        manOfMatch: parseFloat(document.getElementById('manOfMatch').value) || 0
+      };
+
+      if (!formData.name || !formData.game || !formData.dateTime || !formData.maxParticipants) {
+        showError('Please fill in all required fields');
+        return;
+      }
+
+      // Validate date is in the future
+      const tournamentDate = new Date(formData.dateTime);
+      if (tournamentDate <= new Date()) {
+        showError('Tournament date must be in the future');
+        return;
+      }
+
+      try {
+        const submitBtn = document.getElementById('submitBtn');
+        const originalText = submitBtn.textContent;
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Creating...';
+
+        const response = await fetch(`${API_URL}/tournaments`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify(formData)
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          showSuccess('✅ Tournament created successfully! Redirecting...');
+          setTimeout(() => {
+            window.location.href = 'dashboard.html';
+          }, 2000);
+        } else {
+          showError(data.error || 'Failed to create tournament');
+        }
+      } catch (error) {
+        console.error('Create tournament error:', error);
+        showError('Failed to create tournament. Please check your connection.');
+      } finally {
+        const submitBtn = document.getElementById('submitBtn');
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'CREATE TOURNAMENT';
+      }
+    }
+
+    // Policy Modal Functions
+    function showPrivacyPolicy() {
+      document.getElementById('privacyModal').style.display = 'block';
+    }
+
+    function closePrivacyModal() {
+      document.getElementById('privacyModal').style.display = 'none';
+    }
+
+    function showTermsOfService() {
+      document.getElementById('termsModal').style.display = 'block';
+    }
+
+    function closeTermsModal() {
+      document.getElementById('termsModal').style.display = 'none';
+    }
+
+    // Dark mode toggle
+    const darkToggle = document.getElementById('darkToggle');
+    const isDarkMode = localStorage.getItem('darkMode') === 'true';
+
+    if (isDarkMode) {
+      document.body.classList.add('dark');
+      darkToggle.textContent = '☀️';
+    }
+
+    darkToggle.addEventListener('click', () => {
+      document.body.classList.toggle('dark');
+      const isDark = document.body.classList.contains('dark');
+      localStorage.setItem('darkMode', isDark);
+      darkToggle.textContent = isDark ? '☀️' : '🌓';
+    });
+
+    // Close modals when clicking outside
+    window.onclick = function(event) {
+      const privacyModal = document.getElementById('privacyModal');
+      const termsModal = document.getElementById('termsModal');
+      
+      if (event.target === privacyModal) {
+        closePrivacyModal();
+      }
+      if (event.target === termsModal) {
+        closeTermsModal();
+      }
+    }
+
+    if (checkAuth()) {
+      // User is authenticated, page is ready
+    }
+  </script>
+
+</body>
+</html>

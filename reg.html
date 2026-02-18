@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gaming Ghar - Register</title>
+  <link rel="stylesheet" href="register.css">
+  <style>
+    * {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
+}
+
+body {
+  height: 100vh;
+  background: linear-gradient(to bottom right, #d9f8e3, #c9d7f3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.logo {
+  width: 300px;
+  margin-bottom: 0px;
+}
+
+.form-box {
+  background: #fff;
+  padding: 30px 40px;
+  border-radius: 10px;
+  box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);
+  width: 350px;
+  max-width: 90%;
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.form-box h2 {
+  text-align: center;
+  color: #4a4a4a;
+  margin-bottom: 20px;
+}
+
+.form-box form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.form-box input {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  outline: none;
+  font-size: 14px;
+}
+
+.form-box button {
+  padding: 10px;
+  background: #6e8efb;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 15px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.form-box button:hover {
+  background: #5a78d8;
+}
+
+.form-box .create-btn {
+  background: #999;
+  margin-top: 10px;
+}
+
+.error-message {
+  color: #d32f2f;
+  font-size: 0.9rem;
+  margin-top: 10px;
+  display: none;
+  text-align: center;
+}
+
+.success-message {
+  color: #4caf50;
+  font-size: 0.9rem;
+  margin-top: 10px;
+  display: none;
+  text-align: center;
+}
+
+.loading {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Responsive Design */
+@media (max-width: 480px) {
+  .logo {
+    width: 220px;
+  }
+  .form-box {
+    width: 90%;
+    padding: 25px;
+  }
+  .form-box input,
+  .form-box button {
+    font-size: 13px;
+  }
+}
+
+  </style>
+</head>
+<body>
+  <div class="container">
+    <img src="logo.png" alt="Gaming Ghar Logo" class="logo">
+
+    <div class="form-box">
+      <h2>Register</h2>
+      <form id="registerForm">
+        <input type="text" id="phone" placeholder="Phone Number" required>
+        <input type="email" id="email" placeholder="Email" required>
+        <input type="text" id="username" placeholder="User Name" required>
+        <input type="password" id="password" placeholder="Password" required>
+        <input type="password" id="confirmPassword" placeholder="Confirm Password" required>
+        <button type="submit" id="signUpBtn">Sign Up</button>
+        <div class="error-message" id="errorMessage"></div>
+        <div class="success-message" id="successMessage"></div>
+        <p>Already have an account?</p>
+        <button type="button" class="create-btn" onclick="window.location.href='index.html'">Login</button>
+
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = 'http://localhost:5000/api';
+
+    document.getElementById('registerForm').addEventListener('submit', handleRegister);
+
+    async function handleRegister(e) {
+      e.preventDefault();
+
+      const phone = document.getElementById('phone').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value.trim();
+      const confirmPassword = document.getElementById('confirmPassword').value.trim();
+      const errorMessage = document.getElementById('errorMessage');
+      const successMessage = document.getElementById('successMessage');
+      const signUpBtn = document.getElementById('signUpBtn');
+
+      // Clear previous messages
+      errorMessage.style.display = 'none';
+      successMessage.style.display = 'none';
+
+      // Validation
+      if (!phone || !email || !username || !password || !confirmPassword) {
+        showError('All fields are required');
+        return;
+      }
+
+      if (password !== confirmPassword) {
+        showError('Passwords do not match');
+        return;
+      }
+
+      if (password.length < 6) {
+        showError('Password must be at least 6 characters');
+        return;
+      }
+
+      try {
+        signUpBtn.disabled = true;
+        signUpBtn.classList.add('loading');
+
+        const response = await fetch(`${API_URL}/auth/register`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ phone, email, username, password, confirmPassword })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          showSuccess('Registration successful! Redirecting to login...');
+          setTimeout(() => {
+            window.location.href = 'index.html';
+          }, 2000);
+        } else {
+          showError(data.error || 'Registration failed');
+        }
+      } catch (error) {
+        console.error('Registration error:', error);
+        showError('Registration failed. Please check your connection.');
+      } finally {
+        signUpBtn.disabled = false;
+        signUpBtn.classList.remove('loading');
+      }
+    }
+
+    function showError(message) {
+      const errorMessage = document.getElementById('errorMessage');
+      const successMessage = document.getElementById('successMessage');
+      errorMessage.textContent = message;
+      errorMessage.style.display = 'block';
+      successMessage.style.display = 'none';
+    }
+
+    function showSuccess(message) {
+      const successMessage = document.getElementById('successMessage');
+      const errorMessage = document.getElementById('errorMessage');
+      successMessage.textContent = message;
+      successMessage.style.display = 'block';
+      errorMessage.style.display = 'none';
+    }
+  </script>
+
+
+</body>
+</html>

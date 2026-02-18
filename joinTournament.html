@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Team Registration + Payment (QR Enabled)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --bg: #0f172a;
+      --panel: #111827;
+      --accent: #3b82f6;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --border: #334155;
+    }
+    body {
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Segoe UI Emoji";
+      margin: 0; padding: 2rem;
+      background: linear-gradient(180deg, #0b1220, var(--bg));
+      color: var(--text);
+    }
+    .container {
+      max-width: 940px; margin: 0 auto;
+      background: rgba(17, 24, 39, 0.7);
+      border: 1px solid #1f2937; border-radius: 12px;
+      backdrop-filter: blur(6px);
+      padding: 1.25rem;
+      box-shadow: 0 10px 30px rgba(0,0,0,.25);
+    }
+    h1 { margin: 0 0 1rem; font-size: 1.75rem; }
+    fieldset {
+      border: 1px solid #374151; border-radius: 10px; padding: 1rem; margin-bottom: 1rem;
+    }
+    legend { padding: 0 .5rem; color: var(--muted); }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: .85rem; }
+    label { font-size: .9rem; color: var(--muted); display: block; margin-bottom: .35rem; }
+    input[type="text"], input[type="number"], select, input[type="file"] {
+      width: 90%; padding: .5rem .7rem;
+      background: #0b1220; border: 1px solid var(--border); border-radius: 8px;
+      color: var(--text);
+    }
+    input::placeholder { color: #6b7280; }
+    .playerCard {
+      border: 1px dashed var(--border); border-radius: 10px; padding: .9rem; margin-bottom: .8rem;
+      background: rgba(2,6,23,.35);
+    }
+    .playerHead { font-weight: 600; color: var(--accent); margin-bottom: .6rem; }
+    .actions { display: flex; gap: .6rem; margin-top: .6rem; }
+    button {
+      padding: .6rem .9rem; border-radius: 8px; border: 1px solid var(--border);
+      cursor: pointer; color: white; background: #1f2937;
+    }
+    button.primary { background: var(--accent); border-color: #1d4ed8; }
+    button.secondary { background: #0b1220; }
+    button.mini {
+      padding: .25rem .5rem; font-size: .8rem; border-radius: 6px;
+      background: #0b1220;
+    }
+    .hint { color: var(--muted); font-size: .85rem; margin-top: .25rem; }
+    .small { font-size: .85rem; color: var(--muted); }
+    .payeeCard {
+      display: grid; grid-template-columns: auto 1fr; gap: .8rem; align-items: center;
+      border: 1px solid var(--border); border-radius: 10px; padding: .75rem; margin: .6rem 0;
+      background: rgba(2,6,23,.35);
+    }
+    .qrWrap {
+      width: 140px; height: 140px; border: 1px dashed var(--border); border-radius: 8px;
+      display: flex; align-items: center; justify-content: center; background: #0b1220; overflow: hidden;
+    }
+    .qrWrap img { width: 100%; height: 100%; object-fit: cover; }
+    .kv { display: grid; gap: .35rem; }
+    .kv .line { display: flex; gap: .5rem; align-items: center; }
+    .kv code { background: #0b1220; border: 1px solid var(--border); border-radius: 6px; padding: .15rem .4rem; }
+    .flex { display: flex; gap: .6rem; align-items: center; flex-wrap: wrap; }
+    .divider { height: 1px; background: var(--border); margin: .6rem 0; border: 0; }
+    .warn { color: #fbbf24; font-size: .85rem; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Team Registration</h1>
+
+    <form id="teamForm" novalidate>
+      <!-- Team info -->
+      <fieldset>
+        <legend>Team Info</legend>
+        <div class="row">
+          <div>
+            <label for="teamName">Team name</label>
+            <input type="text" id="teamName" name="teamName" placeholder="e.g., NightRiders" required />
+          </div>
+          <div>
+            <label for="playerCount">Number of players</label>
+            <input type="number" id="playerCount" name="playerCount" min="1" max="50" placeholder="e.g., 5" required />
+            <div class="hint">Enter a number (1–50). Fields will be generated automatically.</div>
+          </div>
+        </div>
+      </fieldset>
+
+      <!-- Players -->
+      <fieldset>
+        <legend>Players</legend>
+        <div id="playersContainer" aria-live="polite"></div>
+      </fieldset>
+
+      <!-- Payment -->
+      <fieldset>
+        <legend>Payment</legend>
+        <div class="row">
+          <div>
+            <label for="entryFee">Entry fee (NPR)</label>
+            <input type="number" id="entryFee" name="entryFee" min="0" step="1" placeholder="e.g., 500" required />
+          </div>
+          <div>
+            <label for="paymentMethod">Payment method</label>
+            <select id="paymentMethod" name="paymentMethod" required>
+              <option value="" selected disabled>Choose a method</option>
+              <option value="esewa">eSewa</option>
+              <option value="khalti">Khalti</option>
+              <option value="bank">Bank Transfer</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Organizer QR / Payee info renders here -->
+        <div id="payeeInfo"></div>
+
+        <!-- Payer-provided details render here -->
+        <div id="paymentDetails" style="margin-top: .6rem;"></div>
+
+        <div style="margin-top:.6rem;">
+          <label for="paymentProof">Payment proof (optional)</label>
+          <input type="file" id="paymentProof" name="paymentProof" accept="image/*,application/pdf" />
+          <div class="hint">Upload a screenshot or receipt if available.</div>
+        </div>
+
+        <div class="flex" style="margin-top:.6rem;">
+          <input type="checkbox" id="agree" required />
+          <label for="agree" class="small">I confirm the payment information is accurate and I agree to the event rules.</label>
+        </div>
+      </fieldset>
+
+      <div class="actions">
+        <button type="submit" class="primary">Submit</button>
+        <button type="reset" class="secondary">Reset</button>
+      </div>
+    </form>
+
+    <p class="small" style="margin-top:1rem;">
+      ⚠️ Do not collect card numbers directly in this form. If you need card payments, integrate a verified payment gateway (redirect/hosted checkout).
+    </p>
+  </div>
+
+  <script>
+    // =========================
+    // CONFIG: Set your QR & payee details here
+    // =========================
+    const PAYMENT_CONFIG = {
+      esewa: {
+        payeeName: 'YOUR TOURNAMENT NAME',
+        mobile: '98XXXXXXXX',
+        qrUrl: 'assets/esewa-qr.png', // <- replace with your eSewa QR image path or full URL
+      },
+      khalti: {
+        payeeName: 'YOUR TOURNAMENT NAME',
+        mobile: '98YYYYYYYY',
+        qrUrl: 'assets/khalti-qr.png', // <- replace with your Khalti QR image path or full URL
+      },
+      bank: {
+        bankName: 'Your Bank Name',
+        accountName: 'YOUR TOURNAMENT NAME',
+        accountNumber: 'XXXXXXXXXXXX',
+        branch: 'Biratnagar',       // optional
+        qrUrl: 'assets/bank-qr.png' // optional QR for bank transfers; leave '' if not used
+      }
+    };
+
+    // Utility: copy to clipboard
+    async function copyText(txt) {
+      try {
+        await navigator.clipboard.writeText(txt);
+        alert('Copied: ' + txt);
+      } catch (e) {
+        console.warn('Clipboard copy failed:', e);
+      }
+    }
+
+    // DOM refs
+    const playerCountInput = document.getElementById('playerCount');
+    const playersContainer = document.getElementById('playersContainer');
+    const form = document.getElementById('teamForm');
+
+    const paymentMethod = document.getElementById('paymentMethod');
+    const payeeInfo = document.getElementById('payeeInfo');
+    const paymentDetails = document.getElementById('paymentDetails');
+    const paymentProofInput = document.getElementById('paymentProof');
+
+    // --- Players dynamic fields ---
+    function createPlayerFields(count) {
+      playersContainer.innerHTML = '';
+      for (let i = 1; i <= count; i++) {
+        const card = document.createElement('div');
+        card.className = 'playerCard';
+
+        const head = document.createElement('div');
+        head.className = 'playerHead';
+        head.textContent = `Player ${i}`;
+        card.appendChild(head);
+
+        // In‑game name
+        const ignLabel = document.createElement('label');
+        ignLabel.setAttribute('for', `player${i}_ign`);
+        ignLabel.textContent = 'In‑game name';
+        const ignInput = document.createElement('input');
+        ignInput.type = 'text';
+        ignInput.id = `player${i}_ign`;
+        ignInput.name = `players[${i-1}][ign]`;
+        ignInput.placeholder = 'e.g., ShadowNinja';
+        ignInput.required = true;
+
+        // UID
+        const uidLabel = document.createElement('label');
+        uidLabel.setAttribute('for', `player${i}_uid`);
+        uidLabel.textContent = 'UID';
+        const uidInput = document.createElement('input');
+        uidInput.type = 'text';
+        uidInput.id = `player${i}_uid`;
+        uidInput.name = `players[${i-1}][uid]`;
+        uidInput.placeholder = 'e.g., 123456789';
+        uidInput.required = true;
+        uidInput.pattern = '[0-9A-Za-z._-]{3,}';
+
+        card.appendChild(ignLabel);
+        card.appendChild(ignInput);
+        card.appendChild(uidLabel);
+        card.appendChild(uidInput);
+        playersContainer.appendChild(card);
+      }
+    }
+
+    playerCountInput.addEventListener('input', (e) => {
+      const n = parseInt(e.target.value, 10);
+      if (!Number.isNaN(n) && n > 0) {
+        createPlayerFields(Math.min(n, 50));
+      } else {
+        playersContainer.innerHTML = '';
+      }
+    });
+
+    // --- Payment: payee info (QR + static details) ---
+    function clearPaymentUI() {
+      payeeInfo.innerHTML = '';
+      paymentDetails.innerHTML = '';
+    }
+
+    function payeeLine(label, value, copyable = false) {
+      const line = document.createElement('div');
+      line.className = 'line';
+      const lbl = document.createElement('span');
+      lbl.className = 'small';
+      lbl.textContent = `${label}:`;
+      const val = document.createElement('code');
+      val.textContent = value || '-';
+      line.appendChild(lbl);
+      line.appendChild(val);
+      if (copyable && value) {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'mini';
+        btn.textContent = 'Copy';
+        btn.addEventListener('click', () => copyText(value));
+        line.appendChild(btn);
+      }
+      return line;
+    }
+
+    function renderPayee(method) {
+      payeeInfo.innerHTML = '';
+      if (!method) return;
+
+      if (method === 'esewa' || method === 'khalti') {
+        const cfg = PAYMENT_CONFIG[method];
+        const card = document.createElement('div');
+        card.className = 'payeeCard';
+
+        const qr = document.createElement('div');
+        qr.className = 'qrWrap';
+        if (cfg.qrUrl) {
+          const img = document.createElement('img');
+          img.src = cfg.qrUrl;
+          img.alt = method + ' QR';
+          img.loading = 'lazy';
+          qr.appendChild(img);
+        } else {
+          qr.textContent = 'QR not set';
+        }
+
+        const right = document.createElement('div');
+        const title = document.createElement('div');
+        title.className = 'playerHead';
+        title.textContent = method === 'esewa' ? 'Pay via eSewa' : 'Pay via Khalti';
+        right.appendChild(title);
+
+        const kv = document.createElement('div');
+        kv.className = 'kv';
+        kv.appendChild(payeeLine('Payee', cfg.payeeName || '—'));
+        kv.appendChild(payeeLine('Mobile', cfg.mobile || '—', true));
+        right.appendChild(kv);
+
+        const tips = document.createElement('div');
+        tips.className = 'hint';
+        tips.textContent = 'Scan the QR in your app or pay to the mobile number above. Then enter your transaction details below.';
+        right.appendChild(tips);
+
+        if (cfg.qrUrl) {
+          const actions = document.createElement('div');
+          actions.className = 'flex';
+          const openBtn = document.createElement('button');
+          openBtn.type = 'button';
+          openBtn.className = 'mini';
+          openBtn.textContent = 'Open QR';
+          openBtn.addEventListener('click', () => window.open(cfg.qrUrl, '_blank'));
+          actions.appendChild(openBtn);
+          right.appendChild(actions);
+        }
+
+        card.appendChild(qr);
+        card.appendChild(right);
+        payeeInfo.appendChild(card);
+        payeeInfo.appendChild(document.createElement('hr')).className = 'divider';
+      }
+
+      if (method === 'bank') {
+        const cfg = PAYMENT_CONFIG.bank;
+        const card = document.createElement('div');
+        card.className = 'payeeCard';
+
+        const qr = document.createElement('div');
+        qr.className = 'qrWrap';
+        if (cfg.qrUrl) {
+          const img = document.createElement('img');
+          img.src = cfg.qrUrl;
+          img.alt = 'Bank QR';
+          img.loading = 'lazy';
+          qr.appendChild(img);
+        } else {
+          qr.textContent = 'QR not set';
+        }
+
+        const right = document.createElement('div');
+        const title = document.createElement('div');
+        title.className = 'playerHead';
+        title.textContent = 'Bank Transfer Details';
+        right.appendChild(title);
+
+        const kv = document.createElement('div');
+        kv.className = 'kv';
+        kv.appendChild(payeeLine('Bank', cfg.bankName || '—'));
+        kv.appendChild(payeeLine('Account Name', cfg.accountName || '—'));
+        kv.appendChild(payeeLine('Account No.', cfg.accountNumber || '—', true));
+        if (cfg.branch) kv.appendChild(payeeLine('Branch', cfg.branch));
+        right.appendChild(kv);
+
+        const tips = document.createElement('div');
+        tips.className = 'hint';
+        tips.textContent = 'Make the transfer using the details above. If a QR is provided, you can scan it from your banking app.';
+        right.appendChild(tips);
+
+        if (cfg.qrUrl) {
+          const actions = document.createElement('div');
+          actions.className = 'flex';
+          const openBtn = document.createElement('button');
+          openBtn.type = 'button';
+          openBtn.className = 'mini';
+          openBtn.textContent = 'Open QR';
+          openBtn.addEventListener('click', () => window.open(cfg.qrUrl, '_blank'));
+          actions.appendChild(openBtn);
+          right.appendChild(actions);
+        }
+
+        card.appendChild(qr);
+        card.appendChild(right);
+        payeeInfo.appendChild(card);
+        payeeInfo.appendChild(document.createElement('hr')).className = 'divider';
+      }
+    }
+
+    // --- Payment: payer detail fields ---
+    function addField({ id, label, placeholder = '', type = 'text', pattern, required = true, hint = '' }) {
+      const wrap = document.createElement('div');
+      wrap.style.marginBottom = '.6rem';
+
+      const lbl = document.createElement('label');
+      lbl.setAttribute('for', id);
+      lbl.textContent = label;
+
+      const input = document.createElement('input');
+      input.id = id;
+      input.name = id;
+      input.type = type;
+      input.placeholder = placeholder;
+      if (pattern) input.pattern = pattern;
+      if (required) input.required = true;
+
+      wrap.appendChild(lbl);
+      wrap.appendChild(input);
+      if (hint) {
+        const hintEl = document.createElement('div');
+        hintEl.className = 'hint';
+        hintEl.textContent = hint;
+        wrap.appendChild(hintEl);
+      }
+      paymentDetails.appendChild(wrap);
+      return input;
+    }
+
+    function renderPayerFields(method) {
+      paymentDetails.innerHTML = '';
+      if (!method) return;
+
+      if (method === 'esewa' || method === 'khalti') {
+        addField({
+          id: 'pay_mobile',
+          label: 'Your registered mobile number',
+          placeholder: '98XXXXXXXX',
+          pattern: '^(97|98|96)[0-9]{8}$',
+          hint: '10-digit number starting with 97/98/96.'
+        });
+        addField({
+          id: 'pay_txn',
+          label: 'Transaction ID',
+          placeholder: 'e.g., TXN123456',
+          pattern: '^[A-Za-z0-9._-]{6,}$'
+        });
+        addField({
+          id: 'pay_note',
+          label: 'Note (optional)',
+          placeholder: 'Payer name or remarks',
+          required: false
+        });
+      }
+
+      if (method === 'bank') {
+        addField({
+          id: 'depositor_name',
+          label: 'Depositor name',
+          placeholder: 'Name of the person who paid'
+        });
+        addField({
+          id: 'pay_txn',
+          label: 'Reference / Transaction ID',
+          placeholder: 'e.g., REF123456',
+          pattern: '^[A-Za-z0-9._-]{6,}$'
+        });
+        addField({
+          id: 'pay_note',
+          label: 'Note (optional)',
+          placeholder: 'Remarks or location',
+          required: false
+        });
+      }
+
+      const tip = document.createElement('div');
+      tip.className = 'warn';
+      tip.textContent = 'Make the payment first, then submit the transaction details here.';
+      paymentDetails.appendChild(tip);
+    }
+
+    paymentMethod.addEventListener('change', (e) => {
+      const method = e.target.value;
+      renderPayee(method);
+      renderPayerFields(method);
+    });
+
+    // --- Submit handler ---
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      // Basic validation
+      if (!form.checkValidity()) {
+        alert('Please complete all required fields.');
+        return;
+      }
+
+      const teamName = form.teamName.value.trim();
+      const playerCount = parseInt(form.playerCount.value, 10) || 0;
+      const entryFee = parseInt(form.entryFee.value, 10) || 0;
+      const method = paymentMethod.value || '';
+
+      // Players
+      const players = [];
+      for (let i = 1; i <= playerCount; i++) {
+        const ign = document.getElementById(`player${i}_ign`)?.value.trim() || '';
+        const uid = document.getElementById(`player${i}_uid`)?.value.trim() || '';
+        players.push({ ign, uid });
+      }
+
+      // Payment details (collect visible inputs)
+      const payDetails = { method, amountNPR: entryFee };
+      const detailInputs = paymentDetails.querySelectorAll('input');
+      detailInputs.forEach(inp => {
+        const key = inp.id;
+        if (!key) return;
+        payDetails[key] = inp.value.trim();
+      });
+
+      // Include payee static info (not secrets)
+      if (method === 'esewa' || method === 'khalti') {
+        const cfg = PAYMENT_CONFIG[method];
+        payDetails.payee = { name: cfg.payeeName, mobile: cfg.mobile };
+      } else if (method === 'bank') {
+        const cfg = PAYMENT_CONFIG.bank;
+        payDetails.payee = {
+          bankName: cfg.bankName,
+          accountName: cfg.accountName,
+          accountNumber: cfg.accountNumber,
+          branch: cfg.branch || ''
+        };
+      }
+
+      // Payment proof (file name only)
+      const proofFile = paymentProofInput.files?.[0];
+      if (proofFile) {
+        payDetails.paymentProof = {
+          name: proofFile.name,
+          sizeBytes: proofFile.size,
+          type: proofFile.type
+        };
+      }
+
+      const data = {
+        teamName,
+        playerCount,
+        players,
+        payment: payDetails,
+        agreed: document.getElementById('agree').checked
+      };
+
+      // For now, just log; you can send to your backend
+      console.log('Submission:', data);
+      alert('Form submitted! (Check console or connect your backend.)');
+
+      // Example: send to your backend
+      // fetch('/api/team-registration', {
+      //   method: 'POST',
+      //   headers: { 'Content-Type': 'application/json' },
+      //   body: JSON.stringify(data)
+      // }).then(res => res.json())
+      //   .then(result => alert('Saved!'))
+      //   .catch(err => alert('Submit failed: ' + err.message));
+    });
+
+    // Reset
+    form.addEventListener('reset', () => {
+      playersContainer.innerHTML = '';
+      clearPaymentUI();
+    });
+  </script>
+</body>
+</html>
